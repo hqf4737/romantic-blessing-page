@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="愿你被爱，被珍惜，也愿未来一直有我。" />
+    <title>愿你被爱，被珍惜</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #000;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-family:
+          "Noto Serif SC", "Source Han Serif SC", "Songti SC", "Microsoft YaHei", serif;
+      }
+
+      .stage {
+        position: relative;
+        width: min(100vw, calc(100svh * 9 / 16));
+        height: min(100svh, calc(100vw * 16 / 9));
+        overflow: hidden;
+        background: #000;
+        isolation: isolate;
+        aspect-ratio: 9 / 16;
+      }
+
+      .stage::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse at center, transparent 0 58%, rgba(0, 0, 0, 0.32) 76%, #000 100%),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent 16%, transparent 84%, rgba(255, 255, 255, 0.025));
+      }
+
+      .spark {
+        position: absolute;
+        z-index: 2;
+        width: var(--size);
+        height: var(--size);
+        left: var(--x);
+        top: var(--y);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        filter: blur(0.2px);
+        opacity: 0;
+        animation: twinkle var(--duration) ease-in-out var(--delay) infinite alternate;
+      }
+
+      .shooting-light {
+        position: absolute;
+        z-index: 3;
+        width: 52%;
+        height: 2px;
+        left: -60%;
+        top: 56%;
+        pointer-events: none;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+        filter: blur(1px) drop-shadow(0 0 18px rgba(255, 255, 255, 0.55));
+        transform: rotate(-38deg);
+        opacity: 0;
+        animation: shooting 1.55s ease-out 7.9s forwards;
+      }
+
+      .text-line {
+        position: absolute;
+        z-index: 4;
+        left: var(--x);
+        top: var(--y);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--gap, 0.18em);
+        white-space: nowrap;
+        letter-spacing: 0;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        text-rendering: optimizeLegibility;
+      }
+
+      .text-line.main {
+        font-size: clamp(22px, 5.35vw, 58px);
+        font-weight: 430;
+      }
+
+      .text-line.blessing {
+        font-family:
+          "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+        font-size: clamp(17px, 4.05vw, 44px);
+        font-weight: 300;
+      }
+
+      .text-line.final {
+        font-size: clamp(28px, 6.3vw, 68px);
+        font-weight: 500;
+      }
+
+      .word {
+        display: inline-block;
+        opacity: 0;
+        color: rgba(255, 255, 255, 0.98);
+        filter: blur(9px);
+        transform: translate3d(var(--dx, 0), 1.1em, 0) scale(0.84);
+        text-shadow:
+          0 0 7px rgba(255, 255, 255, 0.66),
+          0 0 19px rgba(255, 255, 255, 0.22);
+        animation: wordBloom 0.95s cubic-bezier(0.2, 0.88, 0.2, 1.08) var(--delay) forwards;
+      }
+
+      .final .word {
+        text-shadow:
+          0 0 10px rgba(255, 255, 255, 0.78),
+          0 0 34px rgba(255, 255, 255, 0.34),
+          0 0 62px rgba(255, 255, 255, 0.18);
+      }
+
+      .replay {
+        position: absolute;
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
+        z-index: 8;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 50%;
+        color: rgba(255, 255, 255, 0.66);
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+      }
+
+      @keyframes wordBloom {
+        0% {
+          opacity: 0;
+          filter: blur(10px);
+          transform: translate3d(var(--dx, 0), 1.15em, 0) scale(0.84);
+        }
+
+        54% {
+          opacity: 1;
+          filter: blur(0.6px);
+          transform: translate3d(0, -0.12em, 0) scale(1.045);
+        }
+
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+      }
+
+      @keyframes twinkle {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 10px, 0) scale(0.5);
+        }
+
+        100% {
+          opacity: var(--alpha);
+          transform: translate3d(0, -7px, 0) scale(1);
+        }
+      }
+
+      @keyframes shooting {
+        0% {
+          opacity: 0;
+          left: -60%;
+        }
+
+        18% {
+          opacity: 0.85;
+        }
+
+        100% {
+          opacity: 0;
+          left: 108%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage" id="stage" aria-label="愿你被爱，被珍惜，也愿未来一直有我。">
+      <div class="shooting-light"></div>
+      <button class="replay" type="button" title="重播" aria-label="重播">↻</button>
+    </main>
+
+    <script>
+      const stage = document.getElementById("stage");
+      const replay = stage.querySelector(".replay");
+
+      const lines = [
+        { type: "main", x: 50, y: 43.5, start: 0.05, gap: 0.24, step: 0.28, words: ["我希望", "我的", "女朋友，"] },
+        { type: "main", x: 50, y: 48.4, start: 1.05, gap: 0.24, step: 0.28, words: ["永远", "被这个世界", "温柔以待……"] },
+        { type: "blessing", x: 21.3, y: 15.6, start: 2.0, step: 0.2, words: ["天天", "开心"] },
+        { type: "blessing", x: 78.7, y: 15.6, start: 2.42, step: 0.2, words: ["一生", "平安"] },
+        { type: "blessing", x: 13.4, y: 37.35, start: 3.0, step: 0.2, words: ["没有", "烦恼"] },
+        { type: "blessing", x: 86.6, y: 37.35, start: 3.42, step: 0.2, words: ["万事", "顺遂"] },
+        { type: "blessing", x: 20.8, y: 83.1, start: 4.0, step: 0.2, words: ["被人", "偏爱"] },
+        { type: "blessing", x: 79.2, y: 83.1, start: 4.42, step: 0.2, words: ["笑容", "常在"] },
+        { type: "blessing", x: 50, y: 24.2, start: 5.0, step: 0.2, words: ["健康", "快乐"] },
+        { type: "blessing", x: 50, y: 75.8, start: 5.42, step: 0.2, words: ["心想", "事成"] },
+        { type: "blessing", x: 29.6, y: 31.0, start: 6.0, step: 0.2, words: ["永远", "漂亮"] },
+        { type: "blessing", x: 70.4, y: 31.0, start: 6.42, step: 0.2, words: ["所遇", "皆温柔"] },
+        { type: "blessing", x: 30.6, y: 69.0, start: 7.0, step: 0.2, words: ["岁岁", "无忧"] },
+        { type: "blessing", x: 69.4, y: 69.0, start: 7.42, step: 0.2, words: ["梦想", "成真"] },
+        { type: "final", x: 50, y: 59.9, start: 8.0, gap: 0.2, step: 0.3, words: ["愿你", "被爱，", "被珍惜，"] },
+        { type: "final", x: 50, y: 64.85, start: 8.82, gap: 0.2, step: 0.26, words: ["也愿", "未来", "一直", "有我。"] }
+      ];
+
+      function makeSparkles() {
+        stage.querySelectorAll(".spark").forEach((node) => node.remove());
+
+        for (let index = 0; index < 100; index += 1) {
+          const spark = document.createElement("i");
+          const size = 1 + Math.random() * 2.4;
+          spark.className = "spark";
+          spark.style.setProperty("--x", `${2 + Math.random() * 96}%`);
+          spark.style.setProperty("--y", `${4 + Math.random() * 92}%`);
+          spark.style.setProperty("--size", `${size}px`);
+          spark.style.setProperty("--alpha", `${0.16 + Math.random() * 0.42}`);
+          spark.style.setProperty("--duration", `${1.8 + Math.random() * 2.8}s`);
+          spark.style.setProperty("--delay", `${Math.random() * 7.8}s`);
+          stage.insertBefore(spark, stage.firstChild);
+        }
+      }
+
+      function renderLines() {
+        stage.querySelectorAll(".text-line").forEach((node) => node.remove());
+
+        for (const line of lines) {
+          const wrapper = document.createElement("div");
+          wrapper.className = `text-line ${line.type}`;
+          wrapper.style.setProperty("--x", `${line.x}%`);
+          wrapper.style.setProperty("--y", `${line.y}%`);
+          wrapper.style.setProperty("--gap", `${line.gap ?? 0.18}em`);
+
+          line.words.forEach((word, index) => {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.textContent = word;
+            span.style.setProperty("--delay", `${line.start + index * line.step}s`);
+            span.style.setProperty("--dx", `${(index % 2 === 0 ? -1 : 1) * (8 + index * 2)}px`);
+            wrapper.appendChild(span);
+          });
+
+          stage.appendChild(wrapper);
+        }
+      }
+
+      function restart() {
+        makeSparkles();
+        renderLines();
+        const light = stage.querySelector(".shooting-light");
+        light.style.animation = "none";
+        light.offsetHeight;
+        light.style.animation = "";
+      }
+
+      replay.addEventListener("click", restart);
+      restart();
+    </script>
+  </body>
+</html>
