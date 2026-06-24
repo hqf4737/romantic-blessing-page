@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { sha256 } from "js-sha256";
+import boyPortrait from "./assets/private/encounter-boy.jpg";
+import girlPortrait from "./assets/private/encounter-girl.jpg";
 
 const PASSWORD_SALT = "romantic-blessing-page:";
 const PASSWORD_DIGEST = [
@@ -225,7 +227,15 @@ function PasswordGate({ onUnlock }) {
   );
 }
 
-function HomeMenu({ isOpen, onToggle }) {
+function HomeMenu({ activeView, isOpen, onSelectView, onToggle }) {
+  function selectView(view) {
+    onSelectView(view);
+
+    if (isOpen) {
+      onToggle();
+    }
+  }
+
   return (
     <nav className={`site-menu ${isOpen ? "is-open" : ""}`} aria-label="页面菜单">
       <button
@@ -239,8 +249,19 @@ function HomeMenu({ isOpen, onToggle }) {
         <Icon name={isOpen ? "close" : "menu"} />
       </button>
       <div className="menu-panel">
-        <button className="menu-item" type="button" onClick={onToggle}>
+        <button
+          className={`menu-item ${activeView === "home" ? "is-active" : ""}`}
+          type="button"
+          onClick={() => selectView("home")}
+        >
           主页
+        </button>
+        <button
+          className={`menu-item ${activeView === "story" ? "is-active" : ""}`}
+          type="button"
+          onClick={() => selectView("story")}
+        >
+          照片叙述
         </button>
       </div>
     </nav>
@@ -309,6 +330,40 @@ function Sparkles({ replayKey }) {
   ));
 }
 
+function PhotoStory() {
+  return (
+    <section className="photo-story" aria-label="远赴人间惊鸿客，一睹人间盛世颜">
+      <div className="story-backdrop" aria-hidden="true" />
+      <div className="story-moon" aria-hidden="true" />
+      <div className="story-silk-field" aria-hidden="true" />
+      <div className="story-glints" aria-hidden="true">
+        <span style={{ "--x": "14%", "--y": "29%", "--delay": "0.8s", "--size": "3px" }} />
+        <span style={{ "--x": "83%", "--y": "18%", "--delay": "1.1s", "--size": "2px" }} />
+        <span style={{ "--x": "19%", "--y": "62%", "--delay": "1.35s", "--size": "2px" }} />
+        <span style={{ "--x": "74%", "--y": "69%", "--delay": "1.55s", "--size": "3px" }} />
+        <span style={{ "--x": "47%", "--y": "78%", "--delay": "1.95s", "--size": "2px" }} />
+      </div>
+      <figure className="story-photo story-photo-girl">
+        <img src={girlPortrait} alt="女生照片" />
+        <svg className="photo-frame photo-frame-girl" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="1.2" y="1.2" width="97.6" height="97.6" rx="5" pathLength="1" />
+        </svg>
+      </figure>
+      <figure className="story-photo story-photo-boy">
+        <img src={boyPortrait} alt="男生照片" />
+        <svg className="photo-frame photo-frame-boy" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="1.6" y="1.6" width="96.8" height="96.8" rx="6" pathLength="1" />
+        </svg>
+      </figure>
+      <div className="story-seal" aria-hidden="true">惊鸿</div>
+      <div className="story-caption">
+        <span style={{ "--delay": "1.3s" }}>远赴人间惊鸿客，</span>
+        <span style={{ "--delay": "1.85s" }}>一睹人间盛世颜</span>
+      </div>
+    </section>
+  );
+}
+
 function FloatingControls({
   currentTrack,
   isMuted,
@@ -374,6 +429,7 @@ function FloatingControls({
 export default function App() {
   const audioRef = useRef(null);
   const blessingLines = privateLines;
+  const [activeView, setActiveView] = useState("home");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -443,6 +499,11 @@ export default function App() {
     setReplayKey((value) => value + 1);
   }
 
+  function selectView(view) {
+    setActiveView(view);
+    setReplayKey((value) => value + 1);
+  }
+
   function toggleTools() {
     setIsToolsOpen((value) => {
       const next = !value;
@@ -497,9 +558,20 @@ export default function App() {
       {isUnlocked ? (
         <main className="stage" id="home" aria-label="愿你被爱，被珍惜，也愿未来一直有我。">
           <Sparkles replayKey={replayKey} />
-          <div className="shooting-light" key={`light-${replayKey}`} />
-          <HomeMenu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} />
-          <BlessingLines blessingLines={blessingLines} replayKey={replayKey} />
+          <HomeMenu
+            activeView={activeView}
+            isOpen={isMenuOpen}
+            onSelectView={selectView}
+            onToggle={() => setIsMenuOpen((value) => !value)}
+          />
+          {activeView === "home" ? (
+            <>
+              <div className="shooting-light" key={`light-${replayKey}`} />
+              <BlessingLines blessingLines={blessingLines} replayKey={replayKey} />
+            </>
+          ) : (
+            <PhotoStory key={`story-${replayKey}`} />
+          )}
           <FloatingControls
             currentTrack={trackIndex}
             isMuted={isMuted}
