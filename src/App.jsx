@@ -11,12 +11,12 @@ const PASSWORD_DIGEST = [
 
 const tracks = [
   {
-    title: "徐化文（四熹丸子） - 远去的列车",
-    src: new URL("../assets/music/徐化文（四熹丸子） - 远去的列车.mp3", import.meta.url).href
-  },
-  {
     title: "张国荣 - 明月夜",
     src: new URL("../assets/music/张国荣 - 明月夜.mp3", import.meta.url).href
+  },
+  {
+    title: "徐化文（四熹丸子） - 远去的列车",
+    src: new URL("../assets/music/徐化文（四熹丸子） - 远去的列车.mp3", import.meta.url).href
   },
   {
     title: "王菲 - 如愿",
