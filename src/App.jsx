@@ -52,6 +52,25 @@ const lines = [
   { type: "final", x: 50, y: 64.85, start: 8.62, gap: 0.2, step: 0.2, words: ["也愿", "未来", "一直", "有我。"] }
 ];
 
+function getIsPublicVersion() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const pathname = window.location.pathname.replace(/\/+$/, "");
+  const searchParams = new URLSearchParams(window.location.search);
+
+  return pathname.endsWith("/public") || searchParams.get("public") === "1";
+}
+
+function getBlessingLines(isPublicVersion) {
+  if (!isPublicVersion) {
+    return lines;
+  }
+
+  return lines.map((line, index) => (index === 0 ? { ...line, words: ["我希望", "我爱的人，"] } : line));
+}
+
 function Icon({ name }) {
   const common = {
     fill: "none",
@@ -246,8 +265,8 @@ function HomeMenu({ isOpen, onToggle }) {
   );
 }
 
-function BlessingLines({ replayKey }) {
-  return lines.map((line, lineIndex) => (
+function BlessingLines({ blessingLines, replayKey }) {
+  return blessingLines.map((line, lineIndex) => (
     <div
       className={`text-line ${line.type}`}
       key={`${replayKey}-${lineIndex}`}
@@ -372,7 +391,9 @@ function FloatingControls({
 
 export default function App() {
   const audioRef = useRef(null);
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const isPublicVersion = useMemo(() => getIsPublicVersion(), []);
+  const blessingLines = useMemo(() => getBlessingLines(isPublicVersion), [isPublicVersion]);
+  const [isUnlocked, setIsUnlocked] = useState(isPublicVersion);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -497,7 +518,7 @@ export default function App() {
           <Sparkles replayKey={replayKey} />
           <div className="shooting-light" key={`light-${replayKey}`} />
           <HomeMenu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} />
-          <BlessingLines replayKey={replayKey} />
+          <BlessingLines blessingLines={blessingLines} replayKey={replayKey} />
           <FloatingControls
             currentTrack={trackIndex}
             isMuted={isMuted}
