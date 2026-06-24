@@ -1,30 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { sha256 } from "js-sha256";
-
-const PASSWORD_SALT = "romantic-blessing-page:";
-const PASSWORD_DIGEST = [
-  "997352dec18cdd3b",
-  "aed6a64c35de5e39",
-  "13b3c78ad0655103",
-  "7623fb85b10151da"
-].join("");
+import { useCallback, useMemo, useRef, useState } from "react";
 
 const tracks = [
   {
     title: "张国荣 - 明月夜",
-    src: new URL("../assets/music/张国荣 - 明月夜.mp3", import.meta.url).href
+    src: new URL("../../assets/music/张国荣 - 明月夜.mp3", import.meta.url).href
   },
   {
     title: "徐化文（四熹丸子） - 远去的列车",
-    src: new URL("../assets/music/徐化文（四熹丸子） - 远去的列车.mp3", import.meta.url).href
+    src: new URL("../../assets/music/徐化文（四熹丸子） - 远去的列车.mp3", import.meta.url).href
   },
   {
     title: "王菲 - 如愿",
-    src: new URL("../assets/music/王菲 - 如愿.mp3", import.meta.url).href
+    src: new URL("../../assets/music/王菲 - 如愿.mp3", import.meta.url).href
   },
   {
     title: "袖姬 - 遇见一个人",
-    src: new URL("../assets/music/袖姬 - 遇见一个人.mp3", import.meta.url).href
+    src: new URL("../../assets/music/袖姬 - 遇见一个人.mp3", import.meta.url).href
   }
 ];
 
@@ -33,9 +24,8 @@ const DEFAULT_TRACK_INDEX = Math.max(
   0
 );
 
-// Default development target: private version only.
-const privateLines = [
-  { type: "main", x: 50, y: 43.5, start: 0.05, gap: 0.24, step: 0.28, words: ["我希望", "我的", "女朋友，"] },
+const publicLines = [
+  { type: "main", x: 50, y: 43.5, start: 0.05, gap: 0.24, step: 0.28, words: ["我希望", "我爱的人，"] },
   { type: "main", x: 50, y: 48.4, start: 1.05, gap: 0.24, step: 0.28, words: ["永远", "被这个世界", "温柔以待……"] },
   { type: "blessing", x: 21.3, y: 15.6, start: 2.0, step: 0.2, words: ["天天", "开心"] },
   { type: "blessing", x: 78.7, y: 15.6, start: 2.42, step: 0.2, words: ["一生", "平安"] },
@@ -69,13 +59,6 @@ function Icon({ name }) {
       return (
         <svg {...common}>
           <path d="M6 6l12 12M18 6 6 18" />
-        </svg>
-      );
-    case "lock":
-      return (
-        <svg {...common}>
-          <rect width="14" height="11" x="5" y="10" rx="2" />
-          <path d="M8 10V7a4 4 0 0 1 8 0v3" />
         </svg>
       );
     case "menu":
@@ -149,80 +132,8 @@ function Icon({ name }) {
   }
 }
 
-function hashPassword(password) {
-  return sha256(`${PASSWORD_SALT}${password}`);
-}
-
 function wrapTrack(index) {
   return (index + tracks.length) % tracks.length;
-}
-
-function PasswordGate({ onUnlock }) {
-  const inputRef = useRef(null);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isChecking, setIsChecking] = useState(false);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    if (isChecking) {
-      return;
-    }
-
-    setIsChecking(true);
-    setError("");
-
-    try {
-      const digest = hashPassword(password.trim());
-
-      if (digest === PASSWORD_DIGEST) {
-        onUnlock();
-        return;
-      }
-
-      setError("密码不对");
-      setPassword("");
-      inputRef.current?.focus();
-    } catch {
-      setError("当前浏览器不支持安全校验");
-    } finally {
-      setIsChecking(false);
-    }
-  }
-
-  return (
-    <main className="stage lock-screen" aria-label="密码进入">
-      <form className="lock-form" onSubmit={handleSubmit}>
-        <div className="lock-mark" aria-hidden="true">
-          <Icon name="lock" />
-        </div>
-        <label className="lock-label" htmlFor="password">
-          请输入密码
-        </label>
-        <input
-          ref={inputRef}
-          id="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          type="password"
-          inputMode="numeric"
-          autoComplete="off"
-          aria-invalid={Boolean(error)}
-        />
-        <button className="enter-button" type="submit" disabled={isChecking}>
-          进入
-        </button>
-        <p className="lock-error" role="alert">
-          {error}
-        </p>
-      </form>
-    </main>
-  );
 }
 
 function HomeMenu({ isOpen, onToggle }) {
@@ -247,8 +158,8 @@ function HomeMenu({ isOpen, onToggle }) {
   );
 }
 
-function BlessingLines({ blessingLines, replayKey }) {
-  return blessingLines.map((line, lineIndex) => (
+function BlessingLines({ replayKey }) {
+  return publicLines.map((line, lineIndex) => (
     <div
       className={`text-line ${line.type}`}
       key={`${replayKey}-${lineIndex}`}
@@ -371,10 +282,8 @@ function FloatingControls({
   );
 }
 
-export default function App() {
+export default function PublicApp() {
   const audioRef = useRef(null);
-  const blessingLines = privateLines;
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -434,11 +343,6 @@ export default function App() {
     setIsPlaying(false);
   }, []);
 
-  const unlockPage = useCallback(() => {
-    void playAudio({ showPlayer: false });
-    setIsUnlocked(true);
-  }, [playAudio]);
-
   function replay() {
     setReplayKey((value) => value + 1);
   }
@@ -453,10 +357,6 @@ export default function App() {
 
       return next;
     });
-  }
-
-  function togglePlayer() {
-    setIsPlayerOpen((value) => !value);
   }
 
   function togglePlay() {
@@ -494,30 +394,26 @@ export default function App() {
 
   return (
     <>
-      {isUnlocked ? (
-        <main className="stage" id="home" aria-label="愿你被爱，被珍惜，也愿未来一直有我。">
-          <Sparkles replayKey={replayKey} />
-          <div className="shooting-light" key={`light-${replayKey}`} />
-          <HomeMenu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} />
-          <BlessingLines blessingLines={blessingLines} replayKey={replayKey} />
-          <FloatingControls
-            currentTrack={trackIndex}
-            isMuted={isMuted}
-            isPlaying={isPlaying}
-            isPlayerOpen={isPlayerOpen}
-            isToolsOpen={isToolsOpen}
-            onNext={nextTrack}
-            onPrev={prevTrack}
-            onReplay={replay}
-            onToggleMute={toggleMute}
-            onTogglePlay={togglePlay}
-            onTogglePlayer={togglePlayer}
-            onToggleTools={toggleTools}
-          />
-        </main>
-      ) : (
-        <PasswordGate onUnlock={unlockPage} />
-      )}
+      <main className="stage" id="home" aria-label="愿你被爱，被珍惜，也愿未来一直有我。">
+        <Sparkles replayKey={replayKey} />
+        <div className="shooting-light" key={`light-${replayKey}`} />
+        <HomeMenu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} />
+        <BlessingLines replayKey={replayKey} />
+        <FloatingControls
+          currentTrack={trackIndex}
+          isMuted={isMuted}
+          isPlaying={isPlaying}
+          isPlayerOpen={isPlayerOpen}
+          isToolsOpen={isToolsOpen}
+          onNext={nextTrack}
+          onPrev={prevTrack}
+          onReplay={replay}
+          onToggleMute={toggleMute}
+          onTogglePlay={togglePlay}
+          onTogglePlayer={() => setIsPlayerOpen((value) => !value)}
+          onToggleTools={toggleTools}
+        />
+      </main>
       <audio
         ref={audioRef}
         src={tracks[trackIndex].src}
