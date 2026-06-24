@@ -33,8 +33,29 @@ const DEFAULT_TRACK_INDEX = Math.max(
   0
 );
 
-const lines = [
+// Default development target: private version only.
+const privateLines = [
   { type: "main", x: 50, y: 43.5, start: 0.05, gap: 0.24, step: 0.28, words: ["我希望", "我的", "女朋友，"] },
+  { type: "main", x: 50, y: 48.4, start: 1.05, gap: 0.24, step: 0.28, words: ["永远", "被这个世界", "温柔以待……"] },
+  { type: "blessing", x: 21.3, y: 15.6, start: 2.0, step: 0.2, words: ["天天", "开心"] },
+  { type: "blessing", x: 78.7, y: 15.6, start: 2.42, step: 0.2, words: ["一生", "平安"] },
+  { type: "blessing", x: 13.4, y: 37.35, start: 3.0, step: 0.2, words: ["没有", "烦恼"] },
+  { type: "blessing", x: 86.6, y: 37.35, start: 3.42, step: 0.2, words: ["万事", "顺遂"] },
+  { type: "blessing", x: 20.8, y: 83.1, start: 4.0, step: 0.2, words: ["被人", "偏爱"] },
+  { type: "blessing", x: 79.2, y: 83.1, start: 4.42, step: 0.2, words: ["笑容", "常在"] },
+  { type: "blessing", x: 50, y: 24.2, start: 5.0, step: 0.2, words: ["健康", "快乐"] },
+  { type: "blessing", x: 50, y: 75.8, start: 5.42, step: 0.2, words: ["心想", "事成"] },
+  { type: "blessing", x: 29.6, y: 31.0, start: 6.0, step: 0.2, words: ["永远", "漂亮"] },
+  { type: "blessing", x: 70.4, y: 31.0, start: 6.42, step: 0.2, words: ["所遇", "皆温柔"] },
+  { type: "blessing", x: 30.6, y: 69.0, start: 7.0, step: 0.2, words: ["岁岁", "无忧"] },
+  { type: "blessing", x: 69.4, y: 69.0, start: 7.42, step: 0.2, words: ["梦想", "成真"] },
+  { type: "final", x: 50, y: 59.9, start: 8.0, gap: 0.2, step: 0.3, words: ["愿你", "被爱，", "被珍惜，"] },
+  { type: "final", x: 50, y: 64.85, start: 8.62, gap: 0.2, step: 0.2, words: ["也愿", "未来", "一直", "有我。"] }
+];
+
+// Public version is intentionally separate. Update this only when /public should change.
+const publicLines = [
+  { type: "main", x: 50, y: 43.5, start: 0.05, gap: 0.24, step: 0.28, words: ["我希望", "我爱的人，"] },
   { type: "main", x: 50, y: 48.4, start: 1.05, gap: 0.24, step: 0.28, words: ["永远", "被这个世界", "温柔以待……"] },
   { type: "blessing", x: 21.3, y: 15.6, start: 2.0, step: 0.2, words: ["天天", "开心"] },
   { type: "blessing", x: 78.7, y: 15.6, start: 2.42, step: 0.2, words: ["一生", "平安"] },
@@ -64,11 +85,7 @@ function getIsPublicVersion() {
 }
 
 function getBlessingLines(isPublicVersion) {
-  if (!isPublicVersion) {
-    return lines;
-  }
-
-  return lines.map((line, index) => (index === 0 ? { ...line, words: ["我希望", "我爱的人，"] } : line));
+  return isPublicVersion ? publicLines : privateLines;
 }
 
 function Icon({ name }) {
