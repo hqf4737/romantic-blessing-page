@@ -28,6 +28,11 @@ const tracks = [
   }
 ];
 
+const DEFAULT_TRACK_INDEX = Math.max(
+  tracks.findIndex((track) => track.title === "徐化文（四熹丸子） - 远去的列车"),
+  0
+);
+
 const lines = [
   { type: "main", x: 50, y: 43.5, start: 0.05, gap: 0.24, step: 0.28, words: ["我希望", "我的", "女朋友，"] },
   { type: "main", x: 50, y: 48.4, start: 1.05, gap: 0.24, step: 0.28, words: ["永远", "被这个世界", "温柔以待……"] },
@@ -374,7 +379,12 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
-  const [trackIndex, setTrackIndex] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(DEFAULT_TRACK_INDEX);
+
+  const isAudioPlaying = useCallback(() => {
+    const audio = audioRef.current;
+    return Boolean(audio && !audio.paused);
+  }, []);
 
   const playAudio = useCallback(async ({ showPlayer = true } = {}) => {
     const audio = audioRef.current;
@@ -406,6 +416,7 @@ export default function App() {
 
       if (audio) {
         audio.src = tracks[nextIndex].src;
+        audio.muted = isMuted;
         audio.load();
       }
 
@@ -413,7 +424,7 @@ export default function App() {
         void playAudio({ showPlayer });
       }
     },
-    [playAudio]
+    [isMuted, playAudio]
   );
 
   const pauseAudio = useCallback(() => {
@@ -468,11 +479,11 @@ export default function App() {
   }
 
   function nextTrack() {
-    loadTrack(trackIndex + 1, true);
+    loadTrack(trackIndex + 1, isAudioPlaying());
   }
 
   function prevTrack() {
-    loadTrack(trackIndex - 1, true);
+    loadTrack(trackIndex - 1, isAudioPlaying());
   }
 
   function handleEnded() {
