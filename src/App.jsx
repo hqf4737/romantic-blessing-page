@@ -3,6 +3,8 @@ import { sha256 } from "js-sha256";
 import boyPortrait from "./assets/private/encounter-boy.jpg";
 import girlPortrait from "./assets/private/encounter-girl.jpg";
 
+const photoStoryImages = [girlPortrait, boyPortrait];
+
 const PASSWORD_SALT = "romantic-blessing-page:";
 const PASSWORD_DIGEST = [
   "997352dec18cdd3b",
@@ -34,6 +36,37 @@ const DEFAULT_TRACK_INDEX = Math.max(
   tracks.findIndex((track) => track.title === "徐化文（四熹丸子） - 远去的列车"),
   0
 );
+
+function preloadPhotoStoryImages() {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return;
+  }
+
+  window.__photoStoryImagePreloads ??= [];
+
+  photoStoryImages.forEach((src) => {
+    const existingPreload = document.head.querySelector(`link[rel="preload"][href="${src}"]`);
+
+    if (!existingPreload) {
+      const link = document.createElement("link");
+      link.as = "image";
+      link.href = src;
+      link.rel = "preload";
+      link.fetchPriority = "high";
+      document.head.appendChild(link);
+    }
+
+    const image = new Image();
+    image.decoding = "async";
+    image.fetchPriority = "high";
+    image.src = src;
+    window.__photoStoryImagePreloads.push(image);
+
+    if (typeof image.decode === "function") {
+      image.decode().catch(() => {});
+    }
+  });
+}
 
 // Default development target: private version only.
 const privateLines = [
@@ -344,13 +377,13 @@ function PhotoStory() {
         <span style={{ "--x": "47%", "--y": "78%", "--delay": "1.95s", "--size": "2px" }} />
       </div>
       <figure className="story-photo story-photo-girl">
-        <img src={girlPortrait} alt="女生照片" />
+        <img src={girlPortrait} alt="女生照片" decoding="async" fetchPriority="high" loading="eager" />
         <svg className="photo-frame photo-frame-girl" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <rect x="1.2" y="1.2" width="97.6" height="97.6" rx="5" pathLength="1" />
         </svg>
       </figure>
       <figure className="story-photo story-photo-boy">
-        <img src={boyPortrait} alt="男生照片" />
+        <img src={boyPortrait} alt="男生照片" decoding="async" fetchPriority="high" loading="eager" />
         <svg className="photo-frame photo-frame-boy" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <rect x="1.6" y="1.6" width="96.8" height="96.8" rx="6" pathLength="1" />
         </svg>
@@ -438,6 +471,10 @@ export default function App() {
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [trackIndex, setTrackIndex] = useState(DEFAULT_TRACK_INDEX);
+
+  useEffect(() => {
+    preloadPhotoStoryImages();
+  }, []);
 
   const isAudioPlaying = useCallback(() => {
     const audio = audioRef.current;
